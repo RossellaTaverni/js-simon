@@ -1,4 +1,4 @@
-# js-simon
+# ex-js-simon-says-dom
 Esercizio di oggi: Simon Says
 nome repo: js-simon
 
