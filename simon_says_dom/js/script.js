@@ -3,58 +3,81 @@ Dopo 30 secondi i numeri scompaiono e appaiono invece 5 input in cui l'utente de
 Dopo che sono stati inseriti i 5 numeri, il software dice quanti e quali dei numeri da indovinare sono stati individuati.*/
 
 //RECUPERO GLI ELEMENTI DEL DOM E/O DICHIARO LE VARIABILI CHE MI SERVONO
-const countdown = document.getElementById('countdown');
-const numbersList = document.getElementById('numbers-list'); // Assicurati che l'elemento esista nel DOM
-const numbersRandom = document.querySelectorAll('.form-control'); // Sembra che tu voglia selezionare degli input, ma qui non c'è bisogno
-const button = document.getElementById('button');
-let guessedNumber = [];
-let seconds = 30;
+document.addEventListener('DOMContentLoaded', function() {
+    const countdown = document.getElementById('countdown');
+    const numbersList = document.getElementById('numbers-list');
+    const answersForm = document.getElementById('answers-form');
+    const button = document.getElementById('button');
+    const message = document.getElementById('message');
+    let seconds = 30;
 
-
-// Funzione per generare numeri casuali
-function generaNumeriCasuali() {
-    let numeriCasuali = [];
-    
-    for (let i = 0; i < 5; i++) {
-        // Genera un numero casuale tra 1 e 50 (incluso)
-        let numero = Math.floor(Math.random() * 50) + 1;
-        numeriCasuali.push(numero);
+    // Funzione per generare numeri casuali
+    function generaNumeriCasuali() {
+        let numeriCasuali = [];
+        for (let i = 0; i < 5; i++) {
+            let numero = Math.floor(Math.random() * 50) + 1;
+            numeriCasuali.push(numero);
+        }
+        return numeriCasuali;
     }
 
-    return numeriCasuali;
-}
+    // Numeri generati casualmente da memorizzare
+    const numeri = generaNumeriCasuali();
+    let numeriIndovinati = [];
 
-// Eseguiamo la funzione e mostriamo i numeri casuali
-const numeri = generaNumeriCasuali();
+    // Mostriamo nel DOM i numeri casuali
+    numbersList.innerHTML = '';  // Reset
+    numeri.forEach(numero => {
+        numbersList.innerHTML += `<li><p>${numero}</p></li>`;
+    });
 
-// Mostriamo nel DOM i numeri casuali
-numbersList.innerHTML = '';
-numeri.forEach(numero => {
-    numbersList.innerHTML += `<li><p>${numero}</p></li>`; // Aggiungi numeri generati al DOM
+    // Timer 30 secondi
+    const timer = setInterval(function() {
+        seconds--;
+        countdown.innerText = seconds;
+
+        if (seconds <= 0) {
+            clearInterval(timer); // Ferma il timer
+            countdown.textContent = 'Tempo scaduto!';
+
+            if (numbersList) {
+                numbersList.style.display = "none"; // Nascondi numbersList
+            }
+
+            if (answersForm) {
+                answersForm.classList.remove('d-none'); // Mostra il form per l'inserimento dei numeri
+            }
+        }
+
+    }, 1000); // Esegui ogni secondo
+
+    // Aggiungi evento al pulsante di conferma
+    button.addEventListener('click', function(event) {
+        event.preventDefault(); // Previeni il comportamento predefinito del form
+
+        // Recupera i numeri inseriti dall'utente
+        const inputs = document.querySelectorAll('.form-control');
+        const numeriInseriti = Array.from(inputs).map(input => parseInt(input.value));
+
+        // Confronta i numeri inseriti con quelli generati
+        numeriIndovinati = numeriInseriti.filter(numero => numeri.includes(numero));
+
+        // Mostra quanti numeri sono stati indovinati
+        const numeriIndovinatiTesto = numeriIndovinati.length > 0
+            ? `Hai indovinato ${numeriIndovinati.length} numero/i: ${numeriIndovinati.join(', ')}.`
+            : 'Non hai indovinato nessun numero!';
+
+        // Mostra il messaggio
+        message.textContent = numeriIndovinatiTesto;
+
+        // Se l'utente ha indovinato tutti i numeri
+        if (numeriIndovinati.length === numeri.length) {
+            message.textContent += ' Congratulazioni! Hai indovinato tutti i numeri!';
+        }
+    });
 });
 
-// Timer 30 secondi
-const timer = setInterval(function() {
-    // Decrementa il tempo
-    seconds--;
 
-    // Aggiorniamo il contenuto dell'elemento con il tempo rimanente
-    countdown.innerText = seconds;
-
-    // Quando il timer arriva a 0, fermalo
-    if (seconds <= 0) {
-        clearInterval(timer); // Ferma il timer
-        countdown.textContent = 'Tempo scaduto!';
-
-        // Controlla se l'elemento esiste prima di nasconderlo
-        if (numbersList) {
-            numbersList.style.display = "none"; // Nascondi numbersList
-        } else {
-            console.log('Elemento numbersList non trovato!');
-        }
-    }
-
-}, 1000); // Esegui ogni secondo
 
 
 
